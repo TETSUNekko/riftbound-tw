@@ -137,9 +137,52 @@
 
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+  .filterbox { flex: 1 1 100%; }
+
+  .filterbox > summary {
+    display: none;                 /* 桌機不需要開合，直接攤開 */
+  }
+
+  @media (max-width: 700px) {
+    .filterbox > summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+      cursor: pointer;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-2);
+      font-size: 13px;
+    }
+
+    .filterbox > summary::-webkit-details-marker { display: none; }
+
+    .filterbox > summary::after {
+      content: "▾";
+      margin-left: auto;
+      color: var(--ink-faint);
+      transition: transform .15s ease;
+    }
+
+    .filterbox[open] > summary::after { transform: rotate(180deg); }
+
+    .filterbox[open] > summary { margin-bottom: 8px; }
+
+    .sum-label { font-weight: 700; color: var(--ink); }
+
+    .sum-now {
+      color: var(--accent);
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
   /* 每組篩選 = 標籤 + 一排 chip；用 grid 讓兩欄的標籤與 chip 起點對齊 */
   .rows {
-    flex: 1 1 100%;
     display: grid;
     grid-template-columns: repeat(3, auto max-content);
     justify-content: start;
@@ -334,7 +377,10 @@
     <input type="search" id="addr" placeholder="輸入地址或地名，例如 台北市信義區" enterkeyhint="search">
     <button class="primary" id="locate" title="使用目前位置">定位</button>
   </div>
-  <div class="rows" id="filters"></div>
+  <details class="filterbox" id="filterbox" open>
+    <summary><span class="sum-label">篩選</span><span class="sum-now" id="sumNow"></span></summary>
+    <div class="rows" id="filters"></div>
+  </details>
 </div>
 
 <main id="list"><p class="note">讀取活動中…</p></main>
@@ -466,6 +512,18 @@
     return `報名剩 ${gap} 天`;
   }
 
+  // summary 上顯示目前選了什麼（預設值不列）
+  function activeLabels() {
+    const out = [];
+    for (const f of FILTERS) {
+      const hit = f.opts.find(o => o[1] === picked[f.key]);
+      if (!hit) continue;
+      if (f.key === "sort") out.push("依" + hit[0]);
+      else if (hit[1] !== null) out.push(hit[0]);
+    }
+    return out;
+  }
+
   function render() {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const rows = events.filter(e => {
@@ -495,6 +553,7 @@
     });
 
     $("count").textContent = `${rows.length} / 全台 ${events.length} 場`;
+    $("sumNow").textContent = activeLabels().join("・");
     const list = $("list");
     list.innerHTML = "";
     if (!rows.length) {
@@ -569,5 +628,6 @@
   });
 
   buildFilters();
+  if (matchMedia("(max-width: 700px)").matches) $("filterbox").open = false;
   load().catch(() => use(SNAP.list, SNAP.date));
 </script>
