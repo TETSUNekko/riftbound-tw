@@ -141,10 +141,14 @@
   .rows {
     flex: 1 1 100%;
     display: grid;
-    grid-template-columns: auto 1fr auto 1fr;
+    grid-template-columns: auto max-content auto max-content;
+    justify-content: start;
     align-items: center;
-    gap: 6px 18px;
+    gap: 6px 10px;
   }
+
+  /* 第二欄的組別留一點呼吸，但不把兩欄推到畫面兩端 */
+  .row:nth-child(even) .tag { padding-left: 26px; }
 
   .row { display: contents; }
 
@@ -159,7 +163,8 @@
   .chips::-webkit-scrollbar { display: none; }
 
   @media (max-width: 900px) {
-    .rows { grid-template-columns: auto 1fr; }
+    .rows { grid-template-columns: auto minmax(0, 1fr); }
+    .row:nth-child(even) .tag { padding-left: 0; }
   }
 
   .tag {
