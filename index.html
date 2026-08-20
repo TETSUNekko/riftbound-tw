@@ -4,10 +4,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
   :root {
-    --ground: #eef1f5;
+    --ground: #e7ecf2;
     --surface: #ffffff;
-    --surface-2: #e4e9f0;
-    --line: #cbd4e0;
+    --surface-2: #dde4ed;
+    --line: #c2ccda;
     --ink: #141b24;
     --ink-soft: #4a5666;
     --ink-faint: #77839a;
@@ -22,10 +22,10 @@
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --ground: #0d131c;
-      --surface: #151d28;
-      --surface-2: #1d2836;
-      --line: #2b3949;
+      --ground: #080c12;
+      --surface: #18212e;
+      --surface-2: #232f3f;
+      --line: #303f52;
       --ink: #e8edf4;
       --ink-soft: #a6b2c4;
       --ink-faint: #74829a;
@@ -40,10 +40,10 @@
   }
 
   :root[data-theme="dark"] {
-    --ground: #0d131c;
-    --surface: #151d28;
-    --surface-2: #1d2836;
-    --line: #2b3949;
+    --ground: #080c12;
+    --surface: #18212e;
+    --surface-2: #232f3f;
+    --line: #303f52;
     --ink: #e8edf4;
     --ink-soft: #a6b2c4;
     --ink-faint: #74829a;
@@ -179,9 +179,9 @@
   }
 
   .chip[aria-pressed="true"] {
-    background: var(--accent);
-    border-color: transparent;
-    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
     font-weight: 700;
   }
 
@@ -196,62 +196,96 @@
   .note, .empty { grid-column: 1 / -1; padding: 14px; }
 
   .card {
-    display: block;
     text-decoration: none;
     color: inherit;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 12px 13px;
+    border-left: 3px solid var(--state, var(--line));
+    border-radius: 10px;
+    padding: 11px 13px 12px;
     box-shadow: var(--shadow);
     display: grid;
-    gap: 7px;
+    gap: 4px;
+    transition: border-color .12s ease, transform .12s ease;
   }
 
+  .card:hover { border-color: var(--ink-faint); border-left-color: var(--state, var(--line)); }
   .card:active { transform: translateY(1px); }
 
-  .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .card.open { --state: var(--live); }
+  .card.soon { --state: var(--accent); }
+  .card.done { --state: var(--line); opacity: .62; }
+
+  .head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 
   .when {
     font-family: "Chakra Petch", monospace;
     font-variant-numeric: tabular-nums;
-    font-size: 13px;
-    color: var(--ink-soft);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
     letter-spacing: .02em;
+  }
+
+  .when em {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--state, var(--ink-soft));
+    margin-left: 6px;
   }
 
   .km {
     font-family: "Chakra Petch", monospace;
     font-variant-numeric: tabular-nums;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--ink-soft);
     white-space: nowrap;
   }
 
-  .km small { font-size: 11px; font-weight: 500; color: var(--ink-faint); margin-left: 2px; }
+  .km small { font-size: 10.5px; font-weight: 500; color: var(--ink-faint); margin-left: 1px; }
 
-  .name { font-weight: 700; font-size: 16px; line-height: 1.35; text-wrap: balance; }
+  .name {
+    font-weight: 700;
+    font-size: 15.5px;
+    line-height: 1.35;
+    text-wrap: balance;
+    margin-top: 1px;
+  }
 
-  .shop { font-size: 13px; color: var(--ink-soft); }
+  .shop { font-size: 13.5px; color: var(--ink-soft); font-weight: 500; }
 
-  .addr { font-size: 13px; color: var(--ink-faint); }
+  .addr { font-size: 12.5px; color: var(--ink-faint); }
 
-  .meta { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 2px; }
-
-  .pill {
-    font-size: 11.5px;
-    font-weight: 500;
-    padding: 3px 9px;
-    border-radius: 6px;
-    background: var(--surface-2);
-    color: var(--ink-soft);
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin-top: 5px;
+    padding-top: 7px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--ink-faint);
     font-variant-numeric: tabular-nums;
   }
 
-  .pill.state { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
-  .pill.state.open { background: var(--live-soft); color: var(--live); }
-  .pill.state.done { background: transparent; color: var(--closed); border: 1px solid var(--line); }
+  .meta .sep { color: var(--line); }
+
+  .fee {
+    font-family: "Chakra Petch", monospace;
+    font-weight: 700;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    background: var(--surface-2);
+    border-radius: 5px;
+    padding: 1px 7px;
+  }
+
+  .fee.free { color: var(--live); background: var(--live-soft); }
+
+  .deadline { margin-left: auto; }
+  .deadline.urgent { color: var(--accent); font-weight: 700; }
 
   .note, .empty {
     text-align: center;
@@ -300,7 +334,7 @@
     swiss_bo1: "瑞士制 BO1", swiss_bo3: "瑞士制 BO3",
     single_bo1: "淘汰制 BO1", single_bo3: "淘汰制 BO3"
   };
-  const STATES = { 1: ["即將開始", ""], 2: ["報名中", "open"], 3: ["進行中", "open"], 4: ["已結束", "done"] };
+  const STATES = { 1: ["即將開始", "soon"], 2: ["報名中", "open"], 3: ["進行中", "open"], 4: ["已結束", "done"] };
 
   const FILTERS = [
     { key: "status", tag: "狀態", opts: [["全部", null], ["報名中", 2], ["即將開始", 1], ["進行中", 3], ["已結束", 4]] },
@@ -379,6 +413,39 @@
     return me && e.pos ? haversine(me, e.pos) : null;
   }
 
+  const WEEK = ["日", "一", "二", "三", "四", "五", "六"];
+
+  function midnight(iso) {
+    const d = new Date(iso + "T00:00:00");
+    return isNaN(d) ? null : d;
+  }
+
+  function daysLeft(iso) {
+    const d = midnight(iso);
+    if (!d) return null;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return Math.round((d - today) / 86400000);
+  }
+
+  // 日期改成「8/22 (六)」，今明兩天直接講白話
+  function dateLabel(iso) {
+    const d = midnight(iso);
+    if (!d) return iso;
+    const gap = daysLeft(iso);
+    const base = `${d.getMonth() + 1}/${d.getDate()} (${WEEK[d.getDay()]})`;
+    if (gap === 0) return "今天 " + base;
+    if (gap === 1) return "明天 " + base;
+    return base;
+  }
+
+  function deadlineLabel(iso) {
+    const gap = daysLeft(iso);
+    if (gap === null) return "";
+    if (gap < 0) return "報名已截止";
+    if (gap === 0) return "報名今天截止";
+    return `報名剩 ${gap} 天`;
+  }
+
   function render() {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const rows = events.filter(e => {
@@ -422,27 +489,30 @@
     }
     for (const e of rows) {
       const d = distance(e);
-      const [label, cls] = STATES[e.activityStatus] || ["", ""];
+      const st = STATES[e.activityStatus] || ["", ""];
       const a = document.createElement("a");
-      a.className = "card";
+      a.className = "card " + st[1];
       a.href = "https://tc.playloltcg.com/activity-detail.html?id=" + e.id;
       a.target = "_blank";
       a.rel = "noopener";
+      const fee = Number(e.applyAmount);
+      const left = daysLeft(e.applyEndTime);
       a.innerHTML = `
         <div class="head">
-          <span class="when">${e.startTime}</span>
+          <span class="when">${dateLabel(e.startTime)}<em>${st[0]}</em></span>
           ${d === null ? "" : `<span class="km">${d.toFixed(1)}<small>km</small></span>`}
         </div>
         <div class="name"></div>
         <div class="shop"></div>
         <div class="addr"></div>
         <div class="meta">
-          <span class="pill state ${cls}">${label}</span>
-          <span class="pill">${TYPES[e.activityType] || e.activityType}</span>
-          <span class="pill">${MODES[e.battleMode] || ""}</span>
-          <span class="pill">報名費 ${Number(e.applyAmount)}</span>
-          <span class="pill">上限 ${e.maxUser} 人</span>
-          <span class="pill">報名 ${e.applyStartTime} ~ ${e.applyEndTime}</span>
+          <span class="fee ${fee ? "" : "free"}">${fee ? "$" + fee : "免費"}</span>
+          <span>${TYPES[e.activityType] || e.activityType}</span>
+          <span class="sep">/</span>
+          <span>${MODES[e.battleMode] || ""}</span>
+          <span class="sep">/</span>
+          <span>上限 ${e.maxUser} 人</span>
+          <span class="deadline ${left !== null && left <= 2 ? "urgent" : ""}">${deadlineLabel(e.applyEndTime)}</span>
         </div>`;
       a.querySelector(".name").textContent = e.name;
       a.querySelector(".shop").textContent = e.shopName;
