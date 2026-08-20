@@ -628,6 +628,11 @@
   });
 
   buildFilters();
-  if (matchMedia("(max-width: 700px)").matches) $("filterbox").open = false;
+
+  // 桌機一律攤開（收合鈕在桌機是隱藏的，關著會整條不見）；切到手機寬度才收起來
+  const narrow = matchMedia("(max-width: 700px)");
+  const syncFilterBox = () => { $("filterbox").open = !narrow.matches; };
+  narrow.addEventListener("change", syncFilterBox);
+  syncFilterBox();
   load().catch(() => use(SNAP.list, SNAP.date));
 </script>
