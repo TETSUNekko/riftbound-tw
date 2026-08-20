@@ -1,0 +1,471 @@
+<title>符文戰場 台灣賽事雷達</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --ground: #eef1f5;
+    --surface: #ffffff;
+    --surface-2: #e4e9f0;
+    --line: #cbd4e0;
+    --ink: #141b24;
+    --ink-soft: #4a5666;
+    --ink-faint: #77839a;
+    --accent: #b4621a;
+    --accent-ink: #ffffff;
+    --accent-soft: #f5e3d1;
+    --live: #0f7a6b;
+    --live-soft: #d5ebe6;
+    --closed: #8b93a3;
+    --shadow: 0 1px 2px rgba(20, 27, 36, .08), 0 8px 24px -16px rgba(20, 27, 36, .5);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0d131c;
+      --surface: #151d28;
+      --surface-2: #1d2836;
+      --line: #2b3949;
+      --ink: #e8edf4;
+      --ink-soft: #a6b2c4;
+      --ink-faint: #74829a;
+      --accent: #e8a33d;
+      --accent-ink: #17202b;
+      --accent-soft: #34291a;
+      --live: #4dc4ae;
+      --live-soft: #14322e;
+      --closed: #66748a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -18px rgba(0, 0, 0, .9);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0d131c;
+    --surface: #151d28;
+    --surface-2: #1d2836;
+    --line: #2b3949;
+    --ink: #e8edf4;
+    --ink-soft: #a6b2c4;
+    --ink-faint: #74829a;
+    --accent: #e8a33d;
+    --accent-ink: #17202b;
+    --accent-soft: #34291a;
+    --live: #4dc4ae;
+    --live-soft: #14322e;
+    --closed: #66748a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -18px rgba(0, 0, 0, .9);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .brand h1 {
+    margin: 0;
+    font-family: "Chakra Petch", "Noto Sans TC", sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: .01em;
+  }
+
+  .brand .count {
+    font-family: "Chakra Petch", monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .find { display: flex; gap: 8px; }
+
+  input[type="search"] {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    color: var(--ink);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 11px;
+  }
+
+  input[type="search"]::placeholder { color: var(--ink-faint); }
+
+  button {
+    font: inherit;
+    font-family: "Chakra Petch", "Noto Sans TC", sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--ink);
+    padding: 9px 13px;
+    white-space: nowrap;
+  }
+
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .rows { display: flex; flex-direction: column; gap: 6px; }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .row::-webkit-scrollbar { display: none; }
+
+  .row > .tag {
+    font-family: "Chakra Petch", "Noto Sans TC", sans-serif;
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    flex: none;
+    width: 34px;
+  }
+
+  .chip {
+    flex: none;
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  .chip[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: transparent;
+    color: var(--accent-ink);
+    font-weight: 700;
+  }
+
+  main { padding: 14px; display: grid; gap: 10px; }
+
+  @media (min-width: 760px) {
+    main { grid-template-columns: 1fr 1fr; align-items: start; }
+    .note, .empty { grid-column: 1 / -1; }
+  }
+
+  .card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 13px;
+    box-shadow: var(--shadow);
+    display: grid;
+    gap: 7px;
+  }
+
+  .card:active { transform: translateY(1px); }
+
+  .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+
+  .when {
+    font-family: "Chakra Petch", monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: .02em;
+  }
+
+  .km {
+    font-family: "Chakra Petch", monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .km small { font-size: 11px; font-weight: 500; color: var(--ink-faint); margin-left: 2px; }
+
+  .name { font-weight: 700; font-size: 16px; line-height: 1.35; text-wrap: balance; }
+
+  .shop { font-size: 13px; color: var(--ink-soft); }
+
+  .addr { font-size: 13px; color: var(--ink-faint); }
+
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 2px; }
+
+  .pill {
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pill.state { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .pill.state.open { background: var(--live-soft); color: var(--live); }
+  .pill.state.done { background: transparent; color: var(--closed); border: 1px solid var(--line); }
+
+  .note, .empty {
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 13.5px;
+    padding: 26px 14px;
+  }
+
+  .err { color: var(--accent); }
+
+  footer {
+    padding: 4px 14px 28px;
+    color: var(--ink-faint);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  footer a { color: var(--ink-soft); }
+</style>
+
+<div class="bar">
+  <div class="brand">
+    <h1>符文戰場 台灣賽事</h1>
+    <span class="count" id="count">載入中…</span>
+  </div>
+  <div class="find">
+    <input type="search" id="addr" placeholder="輸入地址或地名，例如 台北市信義區" enterkeyhint="search">
+    <button class="primary" id="locate" title="使用目前位置">定位</button>
+  </div>
+  <div class="rows" id="filters"></div>
+</div>
+
+<main id="list"><p class="note">讀取活動中…</p></main>
+<footer><span id="source"></span><br>資料取自 <a href="https://tc.playloltcg.com/activity.html">tc.playloltcg.com</a>，僅顯示台灣場次。點卡片可開啟官方報名頁。</footer>
+
+<script>
+  const SNAP = {"date":"2026-08-20","list":[{"id":503,"name":"暖角落 符文之夜","shopName":"暖角落 卡牌遊戲專賣店","address":"台北市松山區八德路四段135號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-19","applyStartTime":"2026-08-18","applyEndTime":"2026-08-19","maxUser":16,"applyAmount":200.0},{"id":499,"name":" 1對1符文之夜瑞士制","shopName":"桌上旅程","address":"台北市中山區新生北路2段133巷9號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-28","applyStartTime":"2026-08-18","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":200.0},{"id":498,"name":" 1對1符文之夜瑞士制","shopName":"桌上旅程","address":"台北市中山區新生北路2段133巷9號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-27","applyStartTime":"2026-08-18","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":200.0},{"id":497,"name":" 1對1符文之夜瑞士制","shopName":"桌上旅程","address":"台北市中山區新生北路2段133巷9號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-26","applyStartTime":"2026-08-18","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":200.0},{"id":496,"name":"貓腳印松江店 符文戰場 符文之夜","shopName":"貓腳印松江店","address":"台北市南京東路二段95號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-26","applyStartTime":"2026-08-18","applyEndTime":"2026-08-25","maxUser":16,"applyAmount":200.0},{"id":495,"name":"貓腳印松江店 符文之夜","shopName":"貓腳印松江店","address":"台北市南京東路二段95號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-19","applyStartTime":"2026-08-18","applyEndTime":"2026-08-19","maxUser":16,"applyAmount":200.0},{"id":487,"name":"塔普卡 1V1 符文之夜","shopName":"塔普卡桌遊卡牌","address":"新竹縣竹北市仁義路182號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-18","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":200.0},{"id":486,"name":"1V1符文之夜 拉比卡牌 0825","shopName":"拉比卡牌","address":"台北市內湖區五分接89號2F","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-25","applyStartTime":"2026-08-24","applyEndTime":"2026-08-25","maxUser":16,"applyAmount":300.0},{"id":485,"name":"1V1符文之夜 拉比卡牌 0822","shopName":"拉比卡牌","address":"台北市內湖區五分接89號2F","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-21","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":300.0},{"id":484,"name":"1V1符文之夜 拉比卡牌 0818","shopName":"拉比卡牌","address":"台北市內湖區五分接89號2F","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-18","applyStartTime":"2026-08-17","applyEndTime":"2026-08-18","maxUser":16,"applyAmount":300.0},{"id":483,"name":"奧特狐符文之夜","shopName":"奧特狐","address":"台北市萬華區內江街38號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-27","applyStartTime":"2026-08-27","applyEndTime":"2026-08-27","maxUser":16,"applyAmount":200.0},{"id":482,"name":"貓腳印士林店 符文之夜","shopName":"貓腳印士林店","address":"台北市士林區大西路66號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-30","applyEndTime":"2026-08-30","maxUser":16,"applyAmount":250.0},{"id":481,"name":"貓腳印士林店  符文之夜","shopName":"貓腳印士林店","address":"台北市士林區大西路66號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-23","applyStartTime":"2026-08-23","applyEndTime":"2026-08-23","maxUser":16,"applyAmount":250.0},{"id":475,"name":"週五午夜符文之夜","shopName":"模玩獵人","address":"新竹縣湖口鄉中正村溪南二街23號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-17","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":0.0},{"id":474,"name":"符文之夜","shopName":"公車站紙牌玩具店","address":"新北市永和區安樂路220號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-18","applyStartTime":"2026-08-18","applyEndTime":"2026-08-18","maxUser":8,"applyAmount":200.0},{"id":473,"name":"1v1符文之夜","shopName":"卡竅","address":"台北市信義區虎林街132巷77號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-24","applyStartTime":"2026-08-24","applyEndTime":"2026-08-24","maxUser":16,"applyAmount":200.0},{"id":472,"name":"1V1符文之夜","shopName":"卡竅","address":"台北市信義區虎林街132巷77號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-17","applyStartTime":"2026-08-17","applyEndTime":"2026-08-17","maxUser":16,"applyAmount":200.0},{"id":471,"name":"曼果子週三符文之夜","shopName":"漫果子","address":"台北市中山區北安路621巷13號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-19","applyStartTime":"2026-08-17","applyEndTime":"2026-08-19","maxUser":8,"applyAmount":200.0},{"id":470,"name":"1v1符文之夜","shopName":"原紹玩具","address":"台北市松山區民生東路五段184之六號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-29","applyEndTime":"2026-08-29","maxUser":8,"applyAmount":250.0},{"id":469,"name":"1v1符文之夜","shopName":"原紹玩具","address":"台北市松山區民生東路五段184之六號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-22","applyEndTime":"2026-08-22","maxUser":8,"applyAmount":250.0},{"id":468,"name":"1v1符文之夜","shopName":"原紹玩具","address":"台北市松山區民生東路五段184之六號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-21","applyStartTime":"2026-08-21","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":250.0},{"id":467,"name":"8/31 卡金帝國 符文之夜","shopName":"卡金帝國 Card Digger","address":"高雄市左營區自由四路253號4樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-31","applyStartTime":"2026-08-25","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":250.0},{"id":466,"name":"8/14 卡金帝國 符文之夜","shopName":"卡金帝國 Card Digger","address":"高雄市左營區自由四路253號4樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-24","applyStartTime":"2026-08-18","applyEndTime":"2026-08-24","maxUser":8,"applyAmount":250.0},{"id":461,"name":"8/17 卡金帝國 符文之夜","shopName":"卡金帝國 Card Digger","address":"高雄市左營區自由四路253號4樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-17","applyStartTime":"2026-08-16","applyEndTime":"2026-08-17","maxUser":8,"applyAmount":250.0},{"id":452,"name":"符文之夜","shopName":"鬥陣桌遊","address":"彰化縣彰化市永樂街12號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-29","applyEndTime":"2026-08-29","maxUser":16,"applyAmount":300.0},{"id":451,"name":"符文之夜","shopName":"鬥陣桌遊","address":"彰化縣彰化市永樂街12號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-22","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":300.0},{"id":450,"name":"符文之夜","shopName":"鬥陣桌遊","address":"彰化縣彰化市永樂街12號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":300.0},{"id":449,"name":"符文之夜","shopName":"ALG-Academy Legacy Games 瑞卡希有限公司","address":"台北市中山區長春路368號5樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":32,"applyAmount":300.0},{"id":448,"name":"奧特狐符文之夜","shopName":"奧特狐","address":"台北市萬華區內江街38號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-17","applyStartTime":"2026-08-17","applyEndTime":"2026-08-17","maxUser":16,"applyAmount":200.0},{"id":447,"name":" 1V1符文之夜","shopName":"明日卡牌","address":"基隆市仁愛區忠二路56號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-28","applyEndTime":"2026-08-28","maxUser":8,"applyAmount":250.0},{"id":446,"name":"1V1符文之夜","shopName":"檔案島","address":"高雄市三民區松江街35號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-22","applyEndTime":"2026-08-28","maxUser":16,"applyAmount":200.0},{"id":445,"name":"1V1符文之夜","shopName":"檔案島","address":"高雄市三民區松江街35號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-15","applyEndTime":"2026-08-21","maxUser":16,"applyAmount":200.0},{"id":440,"name":"符文之夜","shopName":"雄大休閒館","address":"高雄市前金區中華四路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-14","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":200.0},{"id":439,"name":"1V1符文之夜","shopName":"胖叔叔東湖","address":"台北市內湖區康寧路3段165巷14弄5號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-31","applyStartTime":"2026-08-31","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":250.0},{"id":438,"name":"1V1符文之夜","shopName":"胖叔叔東湖","address":"台北市內湖區康寧路3段165巷14弄5號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-27","applyStartTime":"2026-08-27","applyEndTime":"2026-08-27","maxUser":8,"applyAmount":250.0},{"id":437,"name":"符文之夜","shopName":"雄大書局","address":"高雄市鳳山市南榮路159.161號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-24","applyStartTime":"2026-08-14","applyEndTime":"2026-08-24","maxUser":8,"applyAmount":200.0},{"id":436,"name":"符文之夜","shopName":"雄大書局","address":"高雄市鳳山市南榮路159.161號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-17","applyStartTime":"2026-08-14","applyEndTime":"2026-08-17","maxUser":8,"applyAmount":200.0},{"id":435,"name":"符文之夜","shopName":"雄大書局","address":"高雄市鳳山市南榮路159.161號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-14","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":434,"name":"符文之夜","shopName":"雄大書局","address":"高雄市鳳山市南榮路159.161號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-14","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":433,"name":"符文之夜","shopName":"雄大休閒館","address":"高雄市前金區中華四路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-25","applyStartTime":"2026-08-14","applyEndTime":"2026-08-25","maxUser":16,"applyAmount":200.0},{"id":432,"name":"符文之夜","shopName":"雄大休閒館","address":"高雄市前金區中華四路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-18","applyStartTime":"2026-08-14","applyEndTime":"2026-08-18","maxUser":16,"applyAmount":200.0},{"id":431,"name":"符文之夜","shopName":"雄大休閒館","address":"高雄市前金區中華四路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-14","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":200.0},{"id":428,"name":"1V1符文之夜","shopName":"喬桌遊","address":"高雄市新興區林森一路178號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-14","applyEndTime":"2026-08-16","maxUser":8,"applyAmount":50.0},{"id":419,"name":"符文之夜","shopName":"玖零玩具","address":"臺南市中西區開山里民權路一段1號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-23","applyStartTime":"2026-08-17","applyEndTime":"2026-08-23","maxUser":16,"applyAmount":240.0},{"id":418,"name":"玖零玩具 1v1符文之夜","shopName":"玖零玩具","address":"臺南市中西區開山里民權路一段1號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-14","applyEndTime":"2026-08-16","maxUser":16,"applyAmount":240.0},{"id":413,"name":"符文之夜 19:30開賽","shopName":"崇文社CW Cardshop","address":"台北市大同區寧夏路54號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-27","applyStartTime":"2026-08-26","applyEndTime":"2026-08-27","maxUser":8,"applyAmount":200.0},{"id":412,"name":"符文之夜 19:30開賽","shopName":"崇文社CW Cardshop","address":"台北市大同區寧夏路54號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-19","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":200.0},{"id":411,"name":"符文之夜","shopName":"小蝦米玩具店","address":"台中市西區朝陽街59之3號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-30","applyEndTime":"2026-08-30","maxUser":8,"applyAmount":200.0},{"id":410,"name":"符文之夜","shopName":"小蝦米玩具店","address":"台中市西區朝陽街59之3號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-23","applyStartTime":"2026-08-23","applyEndTime":"2026-08-23","maxUser":8,"applyAmount":200.0},{"id":409,"name":"符文之夜","shopName":"小蝦米玩具店","address":"台中市西區朝陽街59之3號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-20","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":200.0},{"id":404,"name":"符文之夜常規賽","shopName":"一刻館","address":"桃園市桃園區中華路43號2樓","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-30","applyEndTime":"2026-08-30","maxUser":32,"applyAmount":200.0},{"id":403,"name":"符文之夜常規賽","shopName":"一刻館","address":"桃園市桃園區中華路43號2樓","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":1,"startTime":"2026-08-23","applyStartTime":"2026-08-23","applyEndTime":"2026-08-23","maxUser":32,"applyAmount":200.0},{"id":402,"name":"符文之夜常規賽","shopName":"一刻館","address":"桃園市桃園區中華路43號2樓","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-16","applyEndTime":"2026-08-16","maxUser":32,"applyAmount":200.0},{"id":401,"name":"1V1 符文之夜","shopName":"遊森林","address":"新北市林口區仁愛路一段663號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":250.0},{"id":400,"name":"符文之夜","shopName":"雄大書局","address":"高雄市鳳山市南榮路159.161號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-14","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":399,"name":"符文之夜","shopName":"雄大休閒館","address":"高雄市前金區中華四路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-14","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":200.0},{"id":398,"name":"1V1符文之夜","shopName":"鬧鬧","address":"台北市大同區南京西路163號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-26","applyStartTime":"2026-08-14","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":100.0},{"id":397,"name":" 1V1符文之夜","shopName":"鬧鬧","address":"台北市大同區南京西路163號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-24","applyStartTime":"2026-08-14","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":100.0},{"id":396,"name":"1V1符文之夜","shopName":"鬧鬧","address":"台北市大同區南京西路163號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-19","applyStartTime":"2026-08-14","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":100.0},{"id":395,"name":"1V1符文之夜","shopName":"鬧鬧","address":"台北市大同區南京西路163號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-18","applyStartTime":"2026-08-14","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":100.0},{"id":390,"name":"1V1符文之夜","shopName":"明日卡牌","address":"基隆市仁愛區忠二路56號1樓","activityType":"nexus_night","battleMode":"single_bo1","activityStatus":1,"startTime":"2026-08-21","applyStartTime":"2026-08-21","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":250.0},{"id":389,"name":"1V1符文之夜","shopName":"明日卡牌","address":"基隆市仁愛區忠二路56號1樓","activityType":"nexus_night","battleMode":"single_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-14","applyEndTime":"2026-08-14","maxUser":8,"applyAmount":250.0},{"id":388,"name":"1V1符文之夜","shopName":"檔案島","address":"高雄市三民區松江街35號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-14","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":200.0},{"id":387,"name":"卡舖啦啦符文之夜","shopName":"卡舖啦啦","address":"台中市復興路二段30之26號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-27","applyEndTime":"2026-08-30","maxUser":16,"applyAmount":350.0},{"id":386,"name":"卡舖啦啦符文之夜","shopName":"卡舖啦啦","address":"台中市復興路二段30之26號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-23","applyStartTime":"2026-08-20","applyEndTime":"2026-08-23","maxUser":16,"applyAmount":350.0},{"id":384,"name":"1V1符文之夜","shopName":"明志玩具","address":"台中市西屯區中平路1227號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-29","applyEndTime":"2026-08-29","maxUser":16,"applyAmount":100.0},{"id":383,"name":"1V1符文之夜","shopName":"明志玩具","address":"台中市西屯區中平路1227號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-22","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":100.0},{"id":382,"name":"1V1符文之夜","shopName":"明志玩具","address":"台中市西屯區中平路1227號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-14","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":100.0},{"id":378,"name":"1V1符文之夜","shopName":"決鬥學院卡片專賣店","address":"新竹市東區金山一街36號1F","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-13","applyEndTime":"2026-08-16","maxUser":8,"applyAmount":240.0},{"id":373,"name":"1v1符文之夜","shopName":"熊安心玩具坊","address":"高雄市左營區重上街252號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-31","applyStartTime":"2026-08-14","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":250.0},{"id":372,"name":"1v1符文之夜","shopName":"熊安心玩具坊","address":"高雄市左營區重上街252號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-27","applyStartTime":"2026-08-14","applyEndTime":"2026-08-27","maxUser":8,"applyAmount":250.0},{"id":371,"name":"1v1符文之夜","shopName":"熊安心玩具坊","address":"高雄市左營區重上街252號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-14","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":250.0},{"id":370,"name":"符文之夜","shopName":"聚遊","address":"新竹市北區中華路3段9號13樓之1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-27","applyStartTime":"2026-08-13","applyEndTime":"2026-08-26","maxUser":8,"applyAmount":250.0},{"id":369,"name":"聚遊卡牌遊戲符文之夜","shopName":"聚遊","address":"新竹市北區中華路3段9號13樓之1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-13","applyEndTime":"2026-08-16","maxUser":8,"applyAmount":250.0},{"id":368,"name":"1V1符文之夜","shopName":"胖叔叔東湖","address":"台北市內湖區康寧路3段165巷14弄5號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-14","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":250.0},{"id":367,"name":"流星街1V1符文之夜","shopName":"流星街","address":"新北市蘆洲區中原里中正路243巷12號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-29","applyStartTime":"2026-08-13","applyEndTime":"2026-08-29","maxUser":8,"applyAmount":200.0},{"id":362,"name":"流星街1V1符文之夜","shopName":"流星街","address":"新北市蘆洲區中原里中正路243巷12號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-13","applyEndTime":"2026-08-22","maxUser":8,"applyAmount":200.0},{"id":360,"name":"CardMaster 符文之夜","shopName":"CardMaster","address":"台北市中正區南昌路二段47號一樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-25","applyStartTime":"2026-08-13","applyEndTime":"2026-08-25","maxUser":32,"applyAmount":200.0},{"id":354,"name":"豬豬玩具_週五晚上7點半_符文之夜BO1","shopName":"豬豬玩具","address":"新北市永和區永和路2段203號9樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-27","applyEndTime":"2026-08-28","maxUser":16,"applyAmount":250.0},{"id":350,"name":" 雙子星高雄民權店_符文之夜","shopName":"雙子星高雄民權店","address":"高雄市前鎮區民權二路380號-B","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-29","applyStartTime":"2026-08-13","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":150.0},{"id":349,"name":" 雙子星高雄民權店_符文之夜","shopName":"雙子星高雄民權店","address":"高雄市前鎮區民權二路380號-B","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-13","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":150.0},{"id":347,"name":"雙子星高雄民權店_符文之夜","shopName":"雙子星高雄民權店","address":"高雄市前鎮區民權二路380號-B","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-13","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":150.0},{"id":343,"name":"雙子星高雄鹽埕店 8月30日 符文之夜","shopName":"雙子星高雄鹽埕店","address":"高雄市鹽埕區田單街17號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-30","applyStartTime":"2026-08-13","applyEndTime":"2026-08-30","maxUser":16,"applyAmount":150.0},{"id":340,"name":"雙子星高雄鹽埕店 8月23日 符文之夜","shopName":"雙子星高雄鹽埕店","address":"高雄市鹽埕區田單街17號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-23","applyStartTime":"2026-08-16","applyEndTime":"2026-08-23","maxUser":16,"applyAmount":150.0},{"id":339,"name":"雙子星高雄鹽埕店 8月16日 符文之夜","shopName":"雙子星高雄鹽埕店","address":"高雄市鹽埕區田單街17號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-13","applyEndTime":"2026-08-16","maxUser":16,"applyAmount":150.0},{"id":338,"name":"符文之夜","shopName":"郁橋行","address":"台北市內湖區成功路四段30巷20號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-28","applyEndTime":"2026-08-28","maxUser":8,"applyAmount":240.0},{"id":335,"name":"符文之夜","shopName":"郁橋行","address":"台北市內湖區成功路四段30巷20號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-21","applyStartTime":"2026-08-21","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":240.0},{"id":332,"name":"符文戰場之夜","shopName":"前衛者","address":"高雄市鳳山區光華路41號","activityType":"nexus_night","battleMode":"single_bo1","activityStatus":2,"startTime":"2026-08-26","applyStartTime":"2026-08-13","applyEndTime":"2026-08-26","maxUser":16,"applyAmount":25.0},{"id":331,"name":"符文戰場之夜","shopName":"前衛者","address":"高雄市鳳山區光華路41號","activityType":"nexus_night","battleMode":"single_bo1","activityStatus":4,"startTime":"2026-08-19","applyStartTime":"2026-08-13","applyEndTime":"2026-08-17","maxUser":16,"applyAmount":25.0},{"id":330,"name":"符文戰場之夜","shopName":"前衛者","address":"高雄市鳳山區光華路41號","activityType":"nexus_night","battleMode":"single_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-13","applyEndTime":"2026-08-16","maxUser":16,"applyAmount":25.0},{"id":329,"name":"聚遊卡牌遊戲每周四符文之夜","shopName":"聚遊","address":"新竹市北區中華路3段9號13樓之1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-13","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":250.0},{"id":328,"name":"聚遊卡牌遊戲每周四符文之夜","shopName":"聚遊","address":"新竹市北區中華路3段9號13樓之1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-13","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":250.0},{"id":321,"name":"貓腳印高雄店 8月「符文之夜」","shopName":"貓腳印-高雄","address":"高雄市左營區立文路77號6樓之2","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-28","applyEndTime":"2026-08-28","maxUser":32,"applyAmount":250.0},{"id":320,"name":"貓腳印高雄店 8月「符文之夜」","shopName":"貓腳印-高雄","address":"高雄市左營區立文路77號6樓之2","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-21","applyStartTime":"2026-08-21","applyEndTime":"2026-08-21","maxUser":32,"applyAmount":250.0},{"id":319,"name":"貓腳印高雄店 8月「符文之夜」","shopName":"貓腳印-高雄","address":"高雄市左營區立文路77號6樓之2","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-14","applyEndTime":"2026-08-14","maxUser":32,"applyAmount":250.0},{"id":318,"name":"1V1符文之夜","shopName":"巨魔派對","address":"新北市中和區興南路一段175號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-13","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":200.0},{"id":317,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-10-17","applyStartTime":"2026-09-01","applyEndTime":"2026-10-16","maxUser":8,"applyAmount":200.0},{"id":316,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-10-04","applyStartTime":"2026-09-01","applyEndTime":"2026-10-03","maxUser":8,"applyAmount":200.0},{"id":315,"name":"豬豬玩具_週五晚上7點半_符文之夜BO1","shopName":"豬豬玩具","address":"新北市永和區永和路2段203號9樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-21","applyStartTime":"2026-08-21","applyEndTime":"2026-08-21","maxUser":16,"applyAmount":250.0},{"id":314,"name":"豬豬玩具_符文之夜","shopName":"豬豬玩具","address":"新北市永和區永和路2段203號9樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-13","applyEndTime":"2026-08-14","maxUser":16,"applyAmount":250.0},{"id":313,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-10-03","applyStartTime":"2026-09-01","applyEndTime":"2026-10-02","maxUser":8,"applyAmount":200.0},{"id":312,"name":"1V1符文之夜","shopName":"模卡玩具","address":"404臺中市北區新北里錦南街19-2號19-3號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-21","applyEndTime":"2026-08-30","maxUser":8,"applyAmount":250.0},{"id":311,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-09-26","applyStartTime":"2026-09-01","applyEndTime":"2026-09-25","maxUser":8,"applyAmount":200.0},{"id":310,"name":"1V1符文之夜","shopName":"模卡玩具","address":"404臺中市北區新北里錦南街19-2號19-3號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-23","applyStartTime":"2026-08-21","applyEndTime":"2026-08-23","maxUser":8,"applyAmount":250.0},{"id":309,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-09-19","applyStartTime":"2026-09-01","applyEndTime":"2026-09-18","maxUser":8,"applyAmount":200.0},{"id":308,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-09-12","applyStartTime":"2026-09-01","applyEndTime":"2026-09-11","maxUser":8,"applyAmount":200.0},{"id":307,"name":"1V1符文之夜","shopName":"模卡玩具","address":"404臺中市北區新北里錦南街19-2號19-3號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-14","applyEndTime":"2026-08-16","maxUser":8,"applyAmount":250.0},{"id":306,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-09-05","applyStartTime":"2026-09-01","applyEndTime":"2026-09-04","maxUser":8,"applyAmount":200.0},{"id":305,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-29","applyStartTime":"2026-08-14","applyEndTime":"2026-08-28","maxUser":8,"applyAmount":200.0},{"id":304,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-14","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":200.0},{"id":303,"name":"1V1符文之夜","shopName":"模都玩具","address":"台中市南屯區文心南一路29號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-14","applyEndTime":"2026-08-14","maxUser":8,"applyAmount":200.0},{"id":300,"name":"卡卡貓符文之夜交流賽","shopName":"卡卡貓","address":"桃園市中壢區新生路80號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-29","applyEndTime":"2026-08-29","maxUser":8,"applyAmount":200.0},{"id":299,"name":"卡卡貓符文戰場之夜交流賽","shopName":"卡卡貓","address":"桃園市中壢區新生路80號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-22","applyEndTime":"2026-08-22","maxUser":8,"applyAmount":200.0},{"id":298,"name":"卡卡貓符文之夜交流賽","shopName":"卡卡貓","address":"桃園市中壢區新生路80號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":286,"name":"1V1符文之夜","shopName":"牌牌戰","address":"台中市北區成功路401號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-24","applyEndTime":"2026-08-29","maxUser":16,"applyAmount":150.0},{"id":285,"name":"1V1符文之夜","shopName":"牌牌戰","address":"台中市北區成功路401號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-23","applyStartTime":"2026-08-17","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":150.0},{"id":284,"name":"1V1符文之夜","shopName":"牌牌戰","address":"台中市北區成功路401號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-18","applyStartTime":"2026-08-15","applyEndTime":"2026-08-16","maxUser":16,"applyAmount":150.0},{"id":283,"name":"捷泰玩具0821符文之夜","shopName":"捷泰玩具行","address":"台中市東區自由路四段372號","activityType":"nexus_night","battleMode":"single_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-13","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":200.0},{"id":282,"name":"捷泰玩具0826符文之夜","shopName":"捷泰玩具行","address":"台中市東區自由路四段372號","activityType":"nexus_night","battleMode":"single_bo1","activityStatus":2,"startTime":"2026-08-26","applyStartTime":"2026-08-13","applyEndTime":"2026-08-26","maxUser":8,"applyAmount":200.0},{"id":281,"name":"捷泰玩具0819符文之夜","shopName":"捷泰玩具行","address":"台中市東區自由路四段372號","activityType":"nexus_night","battleMode":"single_bo1","activityStatus":4,"startTime":"2026-08-19","applyStartTime":"2026-08-13","applyEndTime":"2026-08-19","maxUser":8,"applyAmount":200.0},{"id":278,"name":"勃根地(新時代店)_符文之夜","shopName":"勃根地桌遊休閒館(新時代店)","address":"台中市東區復興路四段186號8樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-28","applyEndTime":"2026-08-28","maxUser":8,"applyAmount":200.0},{"id":277,"name":"勃根地(新時代店)_符文之夜","shopName":"勃根地桌遊休閒館(新時代店)","address":"台中市東區復興路四段186號8樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-21","applyStartTime":"2026-08-21","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":200.0},{"id":276,"name":"貓腳印東門店 符文之夜","shopName":"貓腳印-東門","address":"台北市大安區信義路2段28號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-29","applyEndTime":"2026-08-29","maxUser":16,"applyAmount":200.0},{"id":275,"name":"貓腳印東門店 符文之夜","shopName":"貓腳印-東門","address":"台北市大安區信義路2段28號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-22","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":200.0},{"id":274,"name":"貓腳印東門店　符文之夜","shopName":"貓腳印-東門","address":"台北市大安區信義路2段28號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-13","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":200.0},{"id":273,"name":"勃根地(新時代店)_符文之夜","shopName":"勃根地桌遊休閒館(新時代店)","address":"台中市東區復興路四段186號8樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-14","applyEndTime":"2026-08-14","maxUser":8,"applyAmount":200.0},{"id":272,"name":"1V1_符文之夜","shopName":"貓腳印雄二店","address":"高雄市前金區自強二路75號2樓","activityType":"regular_play","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-28","applyEndTime":"2026-08-29","maxUser":16,"applyAmount":250.0},{"id":271,"name":"1V1_符文之夜","shopName":"貓腳印雄二店","address":"高雄市前金區自強二路75號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-21","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":250.0},{"id":270,"name":"預組賽-符文之夜","shopName":"貓腳印雄二店","address":"高雄市前金區自強二路75號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":200.0},{"id":253,"name":"卡通符文之夜","shopName":"卡通","address":"台南市中西區成功路29號5樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-27","applyStartTime":"2026-08-13","applyEndTime":"2026-08-27","maxUser":8,"applyAmount":200.0},{"id":249,"name":"諾亞方舟中科店 符文之夜","shopName":"諾亞方舟益智遊戲 - 中科店","address":"台中市西屯區中工二路35號一樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-21","applyEndTime":"2026-08-28","maxUser":16,"applyAmount":250.0},{"id":248,"name":"諾亞方舟中科店 符文之夜","shopName":"諾亞方舟益智遊戲 - 中科店","address":"台中市西屯區中工二路35號一樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-14","applyEndTime":"2026-08-21","maxUser":16,"applyAmount":250.0},{"id":247,"name":"卡通符文之夜","shopName":"卡通","address":"台南市中西區成功路29號5樓","activityType":"nexus_night","battleMode":"single_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-13","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":200.0},{"id":246,"name":"諾亞方舟中科店 符文之夜","shopName":"諾亞方舟益智遊戲 - 中科店","address":"台中市西屯區中工二路35號一樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-13","applyEndTime":"2026-08-14","maxUser":16,"applyAmount":250.0},{"id":245,"name":"符文之夜 8/27","shopName":"貓腳印三民店","address":"高雄市三民區陽明路169號5樓之7","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":1,"startTime":"2026-08-27","applyStartTime":"2026-08-27","applyEndTime":"2026-08-27","maxUser":16,"applyAmount":250.0},{"id":244,"name":"符文之夜8/20","shopName":"貓腳印三民店","address":"高雄市三民區陽明路169號5樓之7","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-20","applyEndTime":"2026-08-20","maxUser":16,"applyAmount":25.0},{"id":243,"name":"1V1符文之夜","shopName":"勃根地桌遊休閒館(瀋陽店)","address":"台中市北屯區瀋陽路三段93號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-27","applyStartTime":"2026-08-27","applyEndTime":"2026-08-27","maxUser":8,"applyAmount":200.0},{"id":242,"name":"塔普卡 1V1 符文之夜","shopName":"塔普卡桌遊卡牌","address":"新竹縣竹北市仁義路182號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":250.0},{"id":241,"name":"1V1符文之夜","shopName":"勃根地桌遊休閒館(瀋陽店)","address":"台中市北屯區瀋陽路三段93號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-20","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":200.0},{"id":239,"name":"1V1符文之夜","shopName":"勃根地桌遊休閒館(瀋陽店)","address":"台中市北屯區瀋陽路三段93號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-16","applyEndTime":"2026-08-16","maxUser":8,"applyAmount":200.0},{"id":233,"name":"三民貓腳印 8/15","shopName":"貓腳印三民店","address":"高雄市三民區陽明路169號5樓之7","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":250.0},{"id":231,"name":"1V1符文之夜","shopName":"樂遊WOW","address":"台中市南屯區向上路五段123號","activityType":"regular_play","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-22","applyEndTime":"2026-08-22","maxUser":8,"applyAmount":50.0},{"id":230,"name":"1V1符文之夜","shopName":"樂遊WOW","address":"台中市南屯區向上路五段123號","activityType":"regular_play","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":50.0},{"id":222,"name":"諾亞方舟西屯店 符文之夜","shopName":"諾亞方舟益智遊戲 - 西屯店","address":"台中市西屯區台灣大道二段910號五樓之一","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-22","applyEndTime":"2026-08-29","maxUser":16,"applyAmount":250.0},{"id":221,"name":"諾亞方舟西屯店 符文之夜","shopName":"諾亞方舟益智遊戲 - 西屯店","address":"台中市西屯區台灣大道二段910號五樓之一","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-15","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":250.0},{"id":220,"name":"諾亞方舟西屯店 符文之夜","shopName":"諾亞方舟益智遊戲 - 西屯店","address":"台中市西屯區台灣大道二段910號五樓之一","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-13","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":250.0},{"id":219,"name":"貓腳印-桃園店 符文之夜","shopName":"貓腳印-桃園店","address":"桃園市桃園區中華路1號11樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-14","applyEndTime":"2026-08-14","maxUser":16,"applyAmount":250.0},{"id":218,"name":"扭蛋將軍X轉蛋概念館「符文之夜」0821","shopName":"扭蛋將軍x轉蛋概念館","address":"台南市中西區民生路一段89號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-13","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":240.0},{"id":217,"name":"扭蛋將軍X轉蛋概念館「符文之夜」","shopName":"扭蛋將軍x轉蛋概念館","address":"台南市中西區民生路一段89號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-13","applyEndTime":"2026-08-14","maxUser":8,"applyAmount":240.0},{"id":216,"name":"1V1符文之夜","shopName":"oldtown 舊城區","address":"台北市大安區通化街19巷6弄10號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-28","applyEndTime":"2026-08-28","maxUser":8,"applyAmount":200.0},{"id":215,"name":"1V1符文之夜","shopName":"oldtown 舊城區","address":"台北市大安區通化街19巷6弄10號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-21","applyStartTime":"2026-08-21","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":200.0},{"id":214,"name":"1v1符文之夜","shopName":"oldtown 舊城區","address":"台北市大安區通化街19巷6弄10號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-14","applyEndTime":"2026-08-14","maxUser":8,"applyAmount":200.0},{"id":213,"name":"放課桌遊社符文之夜0830","shopName":"放課桌遊社","address":"新北市板橋區新民里文化路一段140號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-30","applyStartTime":"2026-08-13","applyEndTime":"2026-08-29","maxUser":8,"applyAmount":200.0},{"id":212,"name":"放課桌遊社符文之夜0823","shopName":"放課桌遊社","address":"新北市板橋區新民里文化路一段140號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-23","applyStartTime":"2026-08-13","applyEndTime":"2026-08-22","maxUser":8,"applyAmount":200.0},{"id":211,"name":"放課桌遊社符文之夜","shopName":"放課桌遊社","address":"新北市板橋區新民里文化路一段140號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-13","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":210,"name":"美樂地 符文之夜","shopName":"家家美樂地","address":"新北市三重區永盛里三和路4段328號地下層1樓","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":250.0},{"id":209,"name":"1V1符文之夜","shopName":"樂遊WOW","address":"台中市南屯區向上路五段123號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-29","applyStartTime":"2026-08-14","applyEndTime":"2026-08-29","maxUser":8,"applyAmount":50.0},{"id":208,"name":"符文之夜","shopName":"雄大書局","address":"高雄市鳳山市南榮路159.161號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-24","applyStartTime":"2026-08-13","applyEndTime":"2026-08-24","maxUser":8,"applyAmount":200.0},{"id":207,"name":"符文之夜","shopName":"雄大書局","address":"高雄市鳳山市南榮路159.161號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-13","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":200.0},{"id":206,"name":"符文之夜","shopName":"雄大書局","address":"高雄市鳳山市南榮路159.161號1樓","activityType":"regular_play","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-17","applyStartTime":"2026-08-13","applyEndTime":"2026-08-17","maxUser":8,"applyAmount":200.0},{"id":205,"name":"符文之夜","shopName":"雄大休閒館","address":"高雄市前金區中華四路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-25","applyStartTime":"2026-08-13","applyEndTime":"2026-08-25","maxUser":16,"applyAmount":200.0},{"id":204,"name":"符文之夜","shopName":"雄大休閒館","address":"高雄市前金區中華四路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-19","applyStartTime":"2026-08-13","applyEndTime":"2026-08-19","maxUser":16,"applyAmount":200.0},{"id":203,"name":"符文之夜","shopName":"雄大休閒館","address":"高雄市前金區中華四路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-18","applyStartTime":"2026-08-13","applyEndTime":"2026-08-18","maxUser":16,"applyAmount":200.0},{"id":185,"name":"【B one桌遊】符文之夜","shopName":"B one桌遊","address":"高雄市鳳山區北明街117號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-28","applyStartTime":"2026-08-16","applyEndTime":"2026-08-28","maxUser":8,"applyAmount":250.0},{"id":184,"name":"【B one桌遊】符文之夜","shopName":"B one桌遊","address":"高雄市鳳山區北明街117號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-16","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":250.0},{"id":183,"name":"RiRiCO 符文之夜交流賽","shopName":"RiRiCO","address":"臺中市北屯區東光里北屯路288號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-27","applyStartTime":"2026-08-27","applyEndTime":"2026-08-27","maxUser":8,"applyAmount":200.0},{"id":182,"name":"RiRiCO 符文之夜交流賽","shopName":"RiRiCO","address":"臺中市北屯區東光里北屯路288號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-20","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":200.0},{"id":181,"name":"RiRiCO 符文之夜交流賽","shopName":"RiRiCO","address":"臺中市北屯區東光里北屯路288號B1","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":180,"name":"紙牌屋 週五符文之夜","shopName":"紙牌屋","address":"台南市東門路一段354號10樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-28","applyStartTime":"2026-08-14","applyEndTime":"2026-08-28","maxUser":16,"applyAmount":100.0},{"id":179,"name":"紙牌屋 週五符文之夜","shopName":"紙牌屋","address":"台南市東門路一段354號10樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-14","applyEndTime":"2026-08-21","maxUser":16,"applyAmount":100.0},{"id":177,"name":"紙牌屋 週五符文之夜","shopName":"紙牌屋","address":"台南市東門路一段354號10樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-14","applyEndTime":"2026-08-14","maxUser":16,"applyAmount":100.0},{"id":176,"name":"【鬥樂一中店】符文之夜08/30","shopName":"鬥樂一中店","address":"台中市北區尊賢街9號4樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-30","applyEndTime":"2026-08-30","maxUser":32,"applyAmount":200.0},{"id":175,"name":"【鬥樂一中店】符文之夜08/23","shopName":"鬥樂一中店","address":"台中市北區尊賢街9號4樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-23","applyStartTime":"2026-08-23","applyEndTime":"2026-08-23","maxUser":32,"applyAmount":200.0},{"id":174,"name":"【鬥樂一中店】符文之夜08/16","shopName":"鬥樂一中店","address":"台中市北區尊賢街9號4樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-16","applyEndTime":"2026-08-16","maxUser":32,"applyAmount":200.0},{"id":173,"name":"流星街1V1符文之夜","shopName":"流星街","address":"新北市蘆洲區中原里中正路243巷12號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-12","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":172,"name":"【MAGI】符文之夜","shopName":"MAGI","address":"台北市萬華區峨嵋街28號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-28","applyEndTime":"2026-08-28","maxUser":8,"applyAmount":200.0},{"id":167,"name":"桌遊侍周六符文之夜","shopName":"桌遊侍","address":"新北市板橋區華興街20號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-29","applyEndTime":"2026-08-29","maxUser":8,"applyAmount":200.0},{"id":166,"name":"桌遊是週六符文之夜","shopName":"桌遊侍","address":"新北市板橋區華興街20號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-22","applyEndTime":"2026-08-22","maxUser":8,"applyAmount":200.0},{"id":164,"name":"桌遊侍週六符文之夜","shopName":"桌遊侍","address":"新北市板橋區華興街20號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":154,"name":"貓腳印-苗栗店_符文之夜第一彈","shopName":"貓腳印-苗栗店","address":"360 苗栗縣苗栗市建功里府前路92號4樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-24","applyEndTime":"2026-08-29","maxUser":16,"applyAmount":120.0},{"id":153,"name":"貓腳印-苗栗店_符文之夜第一彈","shopName":"貓腳印-苗栗店","address":"360 苗栗縣苗栗市建功里府前路92號4樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-17","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":120.0},{"id":152,"name":"貓腳印-苗栗店_符文之夜第一彈","shopName":"貓腳印-苗栗店","address":"360 苗栗縣苗栗市建功里府前路92號4樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-12","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":120.0},{"id":151,"name":"符文之夜 1 v 1","shopName":"與貓有約","address":"高雄市左營區富民路15號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-23","applyEndTime":"2026-08-29","maxUser":32,"applyAmount":250.0},{"id":150,"name":"符文之夜 1 V 1","shopName":"與貓有約","address":"高雄市左營區富民路15號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-16","applyEndTime":"2026-08-22","maxUser":32,"applyAmount":250.0},{"id":149,"name":"符文之夜 1 v 1 ","shopName":"與貓有約","address":"高雄市左營區富民路15號3樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-13","applyEndTime":"2026-08-15","maxUser":32,"applyAmount":250.0},{"id":148,"name":"1v1符文之夜","shopName":"晨星卡牌","address":"台南市善化區公園路78號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-27","applyEndTime":"2026-08-29","maxUser":32,"applyAmount":250.0},{"id":147,"name":"1v1符文之夜","shopName":"晨星卡牌","address":"台南市善化區公園路78號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-20","applyEndTime":"2026-08-22","maxUser":32,"applyAmount":250.0},{"id":146,"name":"1v1符文之夜","shopName":"晨星卡牌","address":"台南市善化區公園路78號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-13","applyEndTime":"2026-08-15","maxUser":32,"applyAmount":250.0},{"id":138,"name":"1V1符文之夜","shopName":"卡多商行","address":"南投縣草屯鎮芬草路一段229-3","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-27","applyStartTime":"2026-08-27","applyEndTime":"2026-08-27","maxUser":16,"applyAmount":250.0},{"id":137,"name":"1v1符文之夜","shopName":"卡多商行","address":"南投縣草屯鎮芬草路一段229-3","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-20","applyEndTime":"2026-08-20","maxUser":16,"applyAmount":250.0},{"id":136,"name":"1V1符文之夜","shopName":"卡多商行","address":"南投縣草屯鎮芬草路一段229-3","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-14","applyEndTime":"2026-08-14","maxUser":16,"applyAmount":250.0},{"id":127,"name":"符文之夜","shopName":"藍色的貓","address":"高雄市岡山區大義二路20號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-27","applyStartTime":"2026-08-25","applyEndTime":"2026-08-27","maxUser":8,"applyAmount":250.0},{"id":126,"name":"符文之夜","shopName":"藍色的貓","address":"高雄市岡山區大義二路20號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-25","applyStartTime":"2026-08-23","applyEndTime":"2026-08-25","maxUser":8,"applyAmount":250.0},{"id":125,"name":"符文之夜","shopName":"藍色的貓","address":"高雄市岡山區大義二路20號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-18","applyStartTime":"2026-08-16","applyEndTime":"2026-08-18","maxUser":8,"applyAmount":250.0},{"id":121,"name":"【兔妞桌遊】符文之夜","shopName":"兔妞桌遊","address":"桃園市蘆竹區忠孝西路180號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-24","applyEndTime":"2026-08-29","maxUser":8,"applyAmount":250.0},{"id":119,"name":"1V1符文之夜","shopName":"MAGI","address":"台北市萬華區峨嵋街28號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-18","applyEndTime":"2026-08-21","maxUser":8,"applyAmount":200.0},{"id":118,"name":"符文戰場","shopName":"8號卡牌屋","address":"新北市土城區樂利街9號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-28","applyStartTime":"2026-08-12","applyEndTime":"2026-08-28","maxUser":16,"applyAmount":200.0},{"id":117,"name":"符文之夜","shopName":"8號卡牌屋","address":"新北市土城區樂利街9號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-21","applyStartTime":"2026-08-21","applyEndTime":"2026-08-21","maxUser":16,"applyAmount":200.0},{"id":116,"name":"符文之夜","shopName":"8號卡牌屋","address":"新北市土城區樂利街9號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-12","applyEndTime":"2026-08-14","maxUser":16,"applyAmount":200.0},{"id":101,"name":"淡水貓 1V1 符文之夜","shopName":"貓腳印淡水店","address":"新北市淡水區學府路28號5F","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-14","applyEndTime":"2026-08-20","maxUser":16,"applyAmount":250.0},{"id":100,"name":"0830 1V1符文之夜","shopName":"貓腳印-彰化店","address":"彰化縣員林市莒光路398號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-28","applyEndTime":"2026-08-30","maxUser":16,"applyAmount":250.0},{"id":97,"name":"0823符文之夜","shopName":"貓腳印-彰化店","address":"彰化縣員林市莒光路398號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-23","applyStartTime":"2026-08-21","applyEndTime":"2026-08-23","maxUser":16,"applyAmount":250.0},{"id":84,"name":"卡之洞符文之夜","shopName":"卡之洞","address":"新北市新莊區新莊路580號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-28","applyEndTime":"2026-08-28","maxUser":16,"applyAmount":250.0},{"id":82,"name":"卡之洞符文之夜","shopName":"卡之洞","address":"新北市新莊區新莊路580號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-21","applyStartTime":"2026-08-21","applyEndTime":"2026-08-21","maxUser":16,"applyAmount":250.0},{"id":81,"name":"卡之洞 符文之夜","shopName":"卡之洞","address":"新北市新莊區新莊路580號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-14","applyEndTime":"2026-08-14","maxUser":16,"applyAmount":250.0},{"id":80,"name":"MAGIC STAR 符文之夜 ","shopName":"MagicStar","address":"臺北市大安區龍生里和平東路二段231號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-23","applyEndTime":"2026-08-26","maxUser":16,"applyAmount":250.0},{"id":79,"name":"卡市牌場-符文之夜活動","shopName":"卡市牌場","address":"台中市北屯區平興里北屯路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-27","applyStartTime":"2026-08-24","applyEndTime":"2026-08-26","maxUser":16,"applyAmount":250.0},{"id":78,"name":"MagicStar 符文之夜","shopName":"MagicStar","address":"臺北市大安區龍生里和平東路二段231號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-16","applyEndTime":"2026-08-19","maxUser":16,"applyAmount":250.0},{"id":77,"name":"卡市牌場-符文之夜活動","shopName":"卡市牌場","address":"台中市北屯區平興里北屯路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-24","applyStartTime":"2026-08-21","applyEndTime":"2026-08-23","maxUser":16,"applyAmount":250.0},{"id":76,"name":"MagicStar 符文之夜","shopName":"MagicStar","address":"臺北市大安區龍生里和平東路二段231號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-12","applyEndTime":"2026-08-14","maxUser":16,"applyAmount":250.0},{"id":75,"name":"卡市牌場-符文之夜活動","shopName":"卡市牌場","address":"台中市北屯區平興里北屯路312號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-18","applyStartTime":"2026-08-14","applyEndTime":"2026-08-17","maxUser":16,"applyAmount":250.0},{"id":74,"name":"1v1 符文之夜","shopName":"嘉義玩坊","address":"嘉義市西區博愛路一段365號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-30","applyStartTime":"2026-08-14","applyEndTime":"2026-08-30","maxUser":16,"applyAmount":240.0},{"id":73,"name":"卡賣啦符文之夜","shopName":"TCG卡牌","address":"新北市中和區景平路696號5樓","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":1,"startTime":"2026-08-30","applyStartTime":"2026-08-24","applyEndTime":"2026-08-30","maxUser":8,"applyAmount":200.0},{"id":72,"name":"卡賣啦符文之夜","shopName":"TCG卡牌","address":"新北市中和區景平路696號5樓","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":2,"startTime":"2026-08-23","applyStartTime":"2026-08-17","applyEndTime":"2026-08-23","maxUser":8,"applyAmount":200.0},{"id":71,"name":"東門艾客米符文之夜0831","shopName":"東門艾客米","address":"台北市信義路二段283號三樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-31","applyStartTime":"2026-08-24","applyEndTime":"2026-08-31","maxUser":8,"applyAmount":200.0},{"id":70,"name":"東門艾客米符文之夜0824","shopName":"東門艾客米","address":"台北市信義路二段283號三樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-24","applyStartTime":"2026-08-19","applyEndTime":"2026-08-24","maxUser":8,"applyAmount":200.0},{"id":69,"name":"1v1 符文之夜","shopName":"嘉義玩坊","address":"嘉義市西區博愛路一段365號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-23","applyStartTime":"2026-08-14","applyEndTime":"2026-08-23","maxUser":16,"applyAmount":240.0},{"id":67,"name":"卡賣啦符文之夜","shopName":"TCG卡牌","address":"新北市中和區景平路696號5樓","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-17","applyEndTime":"2026-08-17","maxUser":8,"applyAmount":200.0},{"id":66,"name":"東門艾客米符文之夜0812","shopName":"東門艾客米","address":"台北市信義路二段283號三樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-19","applyStartTime":"2026-08-12","applyEndTime":"2026-08-19","maxUser":8,"applyAmount":200.0},{"id":62,"name":"1v1 符文之夜","shopName":"嘉義玩坊","address":"嘉義市西區博愛路一段365號1樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-14","applyEndTime":"2026-08-16","maxUser":16,"applyAmount":240.0},{"id":61,"name":"諾亞方舟中科店 符文之夜","shopName":"諾亞方舟益智遊戲 - 中科店","address":"台中市西屯區中工二路35號一樓","activityType":"regular_play","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-21","applyEndTime":"2026-08-28","maxUser":16,"applyAmount":200.0},{"id":59,"name":"諾亞方舟中科店 符文之夜","shopName":"諾亞方舟益智遊戲 - 中科店","address":"台中市西屯區中工二路35號一樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-21","applyStartTime":"2026-08-14","applyEndTime":"2026-08-21","maxUser":16,"applyAmount":200.0},{"id":58,"name":"諾亞方舟中科店 符文之夜","shopName":"諾亞方舟益智遊戲 - 中科店","address":"台中市西屯區中工二路35號一樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-12","applyEndTime":"2026-08-14","maxUser":16,"applyAmount":200.0},{"id":56,"name":"諾亞方舟西屯店 符文之夜","shopName":"諾亞方舟益智遊戲 - 西屯店","address":"台中市西屯區台灣大道二段910號五樓之一","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-26","applyStartTime":"2026-08-19","applyEndTime":"2026-08-26","maxUser":16,"applyAmount":200.0},{"id":53,"name":"符文之夜","shopName":"諾亞方舟益智遊戲 - 西屯店","address":"台中市西屯區台灣大道二段910號五樓之一","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-19","applyStartTime":"2026-08-12","applyEndTime":"2026-08-19","maxUser":16,"applyAmount":200.0},{"id":51,"name":" 這裡有桌遊 符文之夜 (08/29場次","shopName":"這裡有桌遊","address":"701臺南市東區圍下里青年路432號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-29","applyEndTime":"2026-08-29","maxUser":16,"applyAmount":280.0},{"id":50,"name":"這裡有桌遊 符文之夜 (08/22場次)","shopName":"這裡有桌遊","address":"701臺南市東區圍下里青年路432號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-22","applyEndTime":"2026-08-22","maxUser":16,"applyAmount":280.0},{"id":49,"name":"這裡有桌遊 符文之夜 (08/15場次)","shopName":"這裡有桌遊","address":"701臺南市東區圍下里青年路432號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":16,"applyAmount":280.0},{"id":38,"name":"1V1符文之夜","shopName":"台中黑殿","address":"台中市北區尚德街109號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-12","applyEndTime":"2026-08-14","maxUser":32,"applyAmount":250.0},{"id":37,"name":"CardMaster 符文之夜","shopName":"CardMaster","address":"台北市中正區南昌路二段47號一樓","activityType":"nexus_night","battleMode":"swiss_bo3","activityStatus":4,"startTime":"2026-08-18","applyStartTime":"2026-08-13","applyEndTime":"2026-08-18","maxUser":32,"applyAmount":200.0},{"id":35,"name":"糖果城符文之夜 1v1 08/29","shopName":"桌遊糖果城","address":"台北市內湖區內湖路一段731號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-29","applyStartTime":"2026-08-24","applyEndTime":"2026-08-29","maxUser":8,"applyAmount":250.0},{"id":32,"name":"糖果城符文之夜 1v1 08/22","shopName":"桌遊糖果城","address":"台北市內湖區內湖路一段731號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-17","applyEndTime":"2026-08-22","maxUser":8,"applyAmount":250.0},{"id":31,"name":"符文之夜","shopName":"公車站紙牌玩具店","address":"新北市永和區安樂路220號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":25,"name":"糖果城符文之夜 1V1 08/15","shopName":"桌遊糖果城","address":"台北市內湖區內湖路一段731號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-12","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":250.0},{"id":24,"name":"萬隆達符文之夜","shopName":"萬隆達商行","address":"高雄市苓雅區廣州一街143-6號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-28","applyStartTime":"2026-08-28","applyEndTime":"2026-08-28","maxUser":8,"applyAmount":200.0},{"id":23,"name":"萬隆達符文之夜","shopName":"萬隆達商行","address":"高雄市苓雅區廣州一街143-6號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":1,"startTime":"2026-08-22","applyStartTime":"2026-08-22","applyEndTime":"2026-08-22","maxUser":8,"applyAmount":200.0},{"id":21,"name":"1V1符文之夜","shopName":"貓腳印宜蘭店","address":"宜蘭縣宜蘭市新民路125-1號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-27","applyStartTime":"2026-08-12","applyEndTime":"2026-08-27","maxUser":8,"applyAmount":200.0},{"id":20,"name":"萬隆達符文之夜","shopName":"萬隆達商行","address":"高雄市苓雅區廣州一街143-6號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-15","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":19,"name":"1V1符文之夜","shopName":"貓腳印宜蘭店","address":"宜蘭縣宜蘭市新民路125-1號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":3,"startTime":"2026-08-20","applyStartTime":"2026-08-12","applyEndTime":"2026-08-20","maxUser":8,"applyAmount":200.0},{"id":18,"name":"1V1符文之夜","shopName":"貓腳印宜蘭店","address":"宜蘭縣宜蘭市新民路125-1號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-14","applyStartTime":"2026-08-12","applyEndTime":"2026-08-14","maxUser":8,"applyAmount":200.0},{"id":17,"name":"符文之夜","shopName":"新世紀資訊企業社","address":"新竹市平和街7號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-29","applyStartTime":"2026-08-12","applyEndTime":"2026-08-29","maxUser":32,"applyAmount":200.0},{"id":16,"name":"符文之夜","shopName":"新世紀資訊企業社","address":"新竹市平和街7號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-22","applyStartTime":"2026-08-12","applyEndTime":"2026-08-22","maxUser":32,"applyAmount":200.0},{"id":13,"name":"符文之夜","shopName":"新世紀資訊企業社","address":"新竹市平和街7號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-15","applyStartTime":"2026-08-12","applyEndTime":"2026-08-15","maxUser":32,"applyAmount":200.0},{"id":7,"name":"1V1符文之夜","shopName":"Twoworld","address":"台中市沙鹿區晉文路39巷36號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-30","applyStartTime":"2026-08-12","applyEndTime":"2026-08-30","maxUser":8,"applyAmount":200.0},{"id":6,"name":"1V1符文之夜","shopName":"Twoworld","address":"台中市沙鹿區晉文路39巷36號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-23","applyStartTime":"2026-08-12","applyEndTime":"2026-08-23","maxUser":8,"applyAmount":200.0},{"id":5,"name":"1V1符文之夜","shopName":"Twoworld","address":"台中市沙鹿區晉文路39巷36號","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-12","applyEndTime":"2026-08-16","maxUser":8,"applyAmount":200.0},{"id":4,"name":"【兔妞桌遊】符文之夜","shopName":"兔妞桌遊","address":"桃園市蘆竹區忠孝西路180號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":2,"startTime":"2026-08-23","applyStartTime":"2026-08-17","applyEndTime":"2026-08-22","maxUser":8,"applyAmount":250.0},{"id":3,"name":"【兔妞桌遊】符文之夜","shopName":"兔妞桌遊","address":"桃園市蘆竹區忠孝西路180號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-12","applyEndTime":"2026-08-15","maxUser":8,"applyAmount":200.0},{"id":2,"name":"1V1符文之夜","shopName":"貓腳印-彰化店","address":"彰化縣員林市莒光路398號2樓","activityType":"nexus_night","battleMode":"swiss_bo1","activityStatus":4,"startTime":"2026-08-16","applyStartTime":"2026-08-14","applyEndTime":"2026-08-16","maxUser":16,"applyAmount":250.0}]};
+  const VENUES = {"360 苗栗縣苗栗市建功里府前路92號4樓": [24.55858, 120.81627], "404臺中市北區新北里錦南街19-2號19-3號": [24.15433, 120.68729], "701臺南市東區圍下里青年路432號2樓": [22.99138, 120.21393], "南投縣草屯鎮芬草路一段229-3": [23.98468, 120.68172], "台中市北區尊賢街9號4樓": [24.1484, 120.68577], "台中市北區尚德街109號": [24.16018, 120.67749], "台中市北區成功路401號": [24.14626, 120.67662], "台中市北屯區平興里北屯路312號": [24.18335, 120.70203], "台中市北屯區瀋陽路三段93號": [24.17305, 120.68852], "台中市南屯區向上路五段123號": [24.168, 120.58419], "台中市南屯區文心南一路29號": [24.13704, 120.64427], "台中市復興路二段30之26號2樓": [24.11975, 120.66013], "台中市東區復興路四段186號8樓": [24.13837, 120.68985], "台中市東區自由路四段372號": [24.14278, 120.69842], "台中市沙鹿區晉文路39巷36號": [24.22087, 120.58246], "台中市西區朝陽街59之3號": [24.13569, 120.66978], "台中市西屯區中工二路35號一樓": [24.18195, 120.61668], "台中市西屯區中平路1227號": [24.17632, 120.66034], "台中市西屯區台灣大道二段910號五樓之一": [24.1617, 120.65142], "台北市中山區北安路621巷13號1樓": [25.08169, 121.54867], "台北市中山區新生北路2段133巷9號1樓": [25.06027, 121.52783], "台北市中山區長春路368號5樓": [25.05459, 121.54308], "台北市中正區南昌路二段47號一樓": [25.02403, 121.52445], "台北市信義區虎林街132巷77號1樓": [25.03719, 121.57728], "台北市信義路二段283號三樓": [25.03477, 121.52551], "台北市內湖區五分接89號2F": [25.06761, 121.61279], "台北市內湖區內湖路一段731號2樓": [25.08149, 121.57131], "台北市內湖區康寧路3段165巷14弄5號1樓": [25.07259, 121.60752], "台北市內湖區成功路四段30巷20號2樓": [25.08255, 121.59292], "台北市南京東路二段95號B1": [25.05194, 121.53393], "台北市士林區大西路66號B1": [25.09085, 121.5245], "台北市大同區南京西路163號B1": [25.05348, 121.51689], "台北市大同區寧夏路54號2樓": [25.05896, 121.51494], "台北市大安區信義路2段28號2樓": [25.03477, 121.52551], "台北市大安區通化街19巷6弄10號1樓": [25.02873, 121.55381], "台北市松山區八德路四段135號B1": [25.04844, 121.56032], "台北市松山區民生東路五段184之六號1樓": [25.04989, 121.57727], "台北市萬華區內江街38號1樓": [25.04163, 121.50575], "台北市萬華區峨嵋街28號2樓": [25.04445, 121.50298], "台南市中西區成功路29號5樓": [22.99775, 120.20864], "台南市中西區民生路一段89號": [22.99312, 120.20389], "台南市善化區公園路78號2樓": [23.13312, 120.29781], "台南市東門路一段354號10樓": [22.98733, 120.21659], "嘉義市西區博愛路一段365號1樓": [23.48944, 120.44617], "基隆市仁愛區忠二路56號1樓": [25.13044, 121.73945], "宜蘭縣宜蘭市新民路125-1號": [24.7574, 121.75445], "彰化縣員林市莒光路398號2樓": [23.96746, 120.56689], "彰化縣彰化市永樂街12號3樓": [24.07725, 120.53928], "新北市三重區永盛里三和路4段328號地下層1樓": [25.07704, 121.48614], "新北市中和區景平路696號5樓": [25.00355, 121.49663], "新北市中和區興南路一段175號1樓": [24.99073, 121.51111], "新北市土城區樂利街9號1樓": [24.98596, 121.4483], "新北市新莊區新莊路580號1樓": [25.03458, 121.45361], "新北市板橋區新民里文化路一段140號3樓": [25.00978, 121.45784], "新北市板橋區華興街20號": [25.00466, 121.45862], "新北市林口區仁愛路一段663號1樓": [25.07262, 121.39867], "新北市永和區安樂路220號": [24.99781, 121.51495], "新北市永和區永和路2段203號9樓": [25.0129, 121.51526], "新北市淡水區學府路28號5F": [25.16844, 121.44766], "新北市蘆洲區中原里中正路243巷12號2樓": [25.0861, 121.46837], "新竹市北區中華路3段9號13樓之1": [24.7968, 120.95824], "新竹市平和街7號": [24.80478, 120.96716], "新竹市東區金山一街36號1F": [24.77595, 121.01784], "新竹縣湖口鄉中正村溪南二街23號1樓": [24.89779, 121.04369], "新竹縣竹北市仁義路182號2樓": [24.83646, 121.01522], "桃園市中壢區新生路80號3樓": [24.95733, 121.2222], "桃園市桃園區中華路1號11樓": [24.99113, 121.31156], "桃園市桃園區中華路43號2樓": [24.99113, 121.31156], "桃園市蘆竹區忠孝西路180號2樓": [25.04348, 121.29156], "臺中市北屯區東光里北屯路288號B1": [24.18335, 120.70203], "臺北市大安區龍生里和平東路二段231號": [25.02512, 121.5411], "臺北市大安區龍生里和平東路二段231號2樓": [25.02512, 121.5411], "臺南市中西區開山里民權路一段1號": [22.98994, 120.21], "高雄市三民區松江街35號": [22.64663, 120.30416], "高雄市三民區陽明路169號5樓之7": [22.64453, 120.34241], "高雄市前金區中華四路312號": [22.62192, 120.29882], "高雄市前金區自強二路75號2樓": [22.62524, 120.29535], "高雄市前鎮區民權二路380號-B": [22.60487, 120.30892], "高雄市岡山區大義二路20號": [22.78568, 120.28767], "高雄市左營區富民路15號3樓": [22.65967, 120.30517], "高雄市左營區立文路77號6樓之2": [22.66449, 120.305], "高雄市左營區自由四路253號4樓": [22.68052, 120.31369], "高雄市左營區重上街252號": [22.67562, 120.30542], "高雄市新興區林森一路178號2樓": [22.63507, 120.30496], "高雄市苓雅區廣州一街143-6號": [22.62339, 120.3174], "高雄市鳳山區光華路41號": [22.6216, 120.35288], "高雄市鳳山區北明街117號": [22.64376, 120.36944], "高雄市鳳山市南榮路159.161號1樓": [22.6007, 120.33516], "高雄市鹽埕區田單街17號": [22.62823, 120.28063]};
+
+  const API = "https://lol-api.playloltcg.com/xcx/overseas/activity/list";
+  const TYPES = {
+    regular_play: "符文競技", nexus_night: "符文之夜",
+    summoner_skirmish: "召喚師激鬥戰", regional_qualifier: "巡迴資格賽"
+  };
+  const MODES = {
+    swiss_bo1: "瑞士制 BO1", swiss_bo3: "瑞士制 BO3",
+    single_bo1: "淘汰制 BO1", single_bo3: "淘汰制 BO3"
+  };
+  const STATES = { 1: ["即將開始", ""], 2: ["報名中", "open"], 3: ["進行中", "open"], 4: ["已結束", "done"] };
+
+  const FILTERS = [
+    { key: "status", tag: "狀態", opts: [["全部", null], ["報名中", 2], ["即將開始", 1], ["進行中", 3], ["已結束", 4]] },
+    { key: "type", tag: "類型", opts: [["全部", null], ["符文競技", "regular_play"], ["符文之夜", "nexus_night"], ["召喚師激鬥戰", "summoner_skirmish"], ["巡迴資格賽", "regional_qualifier"]] },
+    { key: "fee", tag: "費用", opts: [["全部", null], ["免費", 0], ["≤100", 100], ["≤200", 200], ["≤300", 300]] },
+    { key: "people", tag: "人數", opts: [["全部", null], ["≥8", 8], ["≥16", 16], ["≥32", 32]] },
+    { key: "days", tag: "時間", opts: [["全部", null], ["1天內", 1], ["3天內", 3], ["7天內", 7], ["30天內", 30]] },
+    { key: "km", tag: "距離", opts: [["全部", null], ["5km", 5], ["10km", 10], ["20km", 20], ["50km", 50]] },
+    { key: "sort", tag: "排序", opts: [["距離", "dist"], ["日期", "date"], ["費用", "fee"]] }
+  ];
+
+  const picked = { status: 2, type: null, fee: null, people: null, days: null, km: null, sort: "dist" };
+  let events = [], me = null;
+
+  const $ = id => document.getElementById(id);
+
+  function buildFilters() {
+    const box = $("filters");
+    for (const f of FILTERS) {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `<span class="tag">${f.tag}</span>`;
+      for (const [label, value] of f.opts) {
+        const b = document.createElement("button");
+        b.className = "chip";
+        b.type = "button";
+        b.textContent = label;
+        b.setAttribute("aria-pressed", picked[f.key] === value);
+        b.onclick = () => {
+          picked[f.key] = value;
+          for (const sib of row.querySelectorAll(".chip")) sib.setAttribute("aria-pressed", "false");
+          b.setAttribute("aria-pressed", "true");
+          render();
+        };
+        row.appendChild(b);
+      }
+      box.appendChild(row);
+    }
+  }
+
+  async function load() {
+    let page = 1, all = [], total = 1;
+    while (all.length < total) {
+      const res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageNum: page, pageSize: 100 })
+      }).then(r => r.json());
+      if (res.code !== 0) throw new Error(res.message || "API 回應異常");
+      total = res.result.total;
+      all = all.concat(res.result.list);
+      page++;
+    }
+    use(all.filter(e => e.province === "台灣"), null);
+  }
+
+  function use(list, snapshotDate) {
+    events = list;
+    events.forEach(e => { e.pos = VENUES[e.address] || null; });
+    document.getElementById("source").textContent = snapshotDate
+      ? "此頁無法連外，顯示 " + snapshotDate + " 的資料快照"
+      : "資料為即時取得";
+    render();
+  }
+
+  // 兩點球面距離（公里）
+  function haversine(a, b) {
+    const R = 6371, rad = d => d * Math.PI / 180;
+    const dLat = rad(b[0] - a[0]), dLon = rad(b[1] - a[1]);
+    const h = Math.sin(dLat / 2) ** 2 +
+      Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  function distance(e) {
+    return me && e.pos ? haversine(me, e.pos) : null;
+  }
+
+  function render() {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const rows = events.filter(e => {
+      if (picked.status && e.activityStatus !== picked.status) return false;
+      if (picked.type && e.activityType !== picked.type) return false;
+      if (picked.fee !== null && Number(e.applyAmount) > picked.fee) return false;
+      if (picked.people && (e.maxUser || 0) < picked.people) return false;
+      if (picked.days) {
+        const gap = (new Date(e.startTime + "T00:00:00") - today) / 86400000;
+        if (gap < 0 || gap > picked.days) return false;
+      }
+      if (picked.km !== null) {
+        const d = distance(e);
+        if (d === null || d > picked.km) return false;
+      }
+      return true;
+    });
+
+    rows.sort((a, b) => {
+      if (picked.sort === "date") return a.startTime.localeCompare(b.startTime);
+      if (picked.sort === "fee") return a.applyAmount - b.applyAmount;
+      const da = distance(a), db = distance(b);
+      if (da === null && db === null) return a.startTime.localeCompare(b.startTime);
+      if (da === null) return 1;
+      if (db === null) return -1;
+      return da - db;
+    });
+
+    $("count").textContent = `${rows.length} / 全台 ${events.length} 場`;
+    const list = $("list");
+    list.innerHTML = "";
+    if (!rows.length) {
+      list.innerHTML = '<p class="empty">沒有符合條件的場次，放寬篩選看看。</p>';
+      return;
+    }
+    if (!me) {
+      const p = document.createElement("p");
+      p.className = "note";
+      p.textContent = "按「定位」或輸入地址，即可依距離排序。";
+      list.appendChild(p);
+    }
+    for (const e of rows) {
+      const d = distance(e);
+      const [label, cls] = STATES[e.activityStatus] || ["", ""];
+      const a = document.createElement("a");
+      a.className = "card";
+      a.href = "https://tc.playloltcg.com/activity-detail.html?id=" + e.id;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.innerHTML = `
+        <div class="head">
+          <span class="when">${e.startTime}</span>
+          ${d === null ? "" : `<span class="km">${d.toFixed(1)}<small>km</small></span>`}
+        </div>
+        <div class="name"></div>
+        <div class="shop"></div>
+        <div class="addr"></div>
+        <div class="meta">
+          <span class="pill state ${cls}">${label}</span>
+          <span class="pill">${TYPES[e.activityType] || e.activityType}</span>
+          <span class="pill">${MODES[e.battleMode] || ""}</span>
+          <span class="pill">報名費 ${Number(e.applyAmount)}</span>
+          <span class="pill">上限 ${e.maxUser} 人</span>
+          <span class="pill">報名 ${e.applyStartTime} ~ ${e.applyEndTime}</span>
+        </div>`;
+      a.querySelector(".name").textContent = e.name;
+      a.querySelector(".shop").textContent = e.shopName;
+      a.querySelector(".addr").textContent = e.address;
+      list.appendChild(a);
+    }
+  }
+
+  $("locate").onclick = () => {
+    const btn = $("locate");
+    btn.textContent = "定位中…";
+    navigator.geolocation.getCurrentPosition(
+      p => { me = [p.coords.latitude, p.coords.longitude]; btn.textContent = "已定位"; render(); },
+      () => { btn.textContent = "定位"; alert("取得位置失敗，請改用輸入地址。"); },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  $("addr").addEventListener("keydown", async ev => {
+    if (ev.key !== "Enter") return;
+    const q = ev.target.value.trim();
+    if (!q) { me = null; render(); return; }
+    const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tw&q=" +
+      encodeURIComponent(q);
+    try {
+      const r = await fetch(url, { headers: { "Accept-Language": "zh-TW" } }).then(r => r.json());
+      if (!r.length) { alert("找不到這個地址，換個寫法試試（例如只到路名）。"); return; }
+      me = [parseFloat(r[0].lat), parseFloat(r[0].lon)];
+      $("locate").textContent = "已定位";
+      render();
+    } catch (err) {
+      alert("地址查詢失敗：" + err.message);
+    }
+  });
+
+  buildFilters();
+  load().catch(() => use(SNAP.list, SNAP.date));
+</script>
