@@ -141,14 +141,15 @@
   .rows {
     flex: 1 1 100%;
     display: grid;
-    grid-template-columns: auto max-content auto max-content;
+    grid-template-columns: repeat(3, auto max-content);
     justify-content: start;
     align-items: center;
     gap: 6px 10px;
   }
 
-  /* 第二欄的組別留一點呼吸，但不把兩欄推到畫面兩端 */
-  .row:nth-child(even) .tag { padding-left: 26px; }
+  /* 同一列的組別之間留呼吸，但不把欄位推到畫面兩端 */
+  .tag { padding-left: 26px; }
+  .row:nth-child(3n+1) .tag { padding-left: 0; }
 
   .row { display: contents; }
 
@@ -162,9 +163,15 @@
 
   .chips::-webkit-scrollbar { display: none; }
 
+  @media (max-width: 1280px) {
+    .rows { grid-template-columns: repeat(2, auto max-content); }
+    .row:nth-child(even) .tag { padding-left: 26px; }
+    .row:nth-child(odd) .tag { padding-left: 0; }
+  }
+
   @media (max-width: 900px) {
     .rows { grid-template-columns: auto minmax(0, 1fr); }
-    .row:nth-child(even) .tag { padding-left: 0; }
+    .row .tag { padding-left: 0; }
   }
 
   .tag {
