@@ -378,7 +378,7 @@
   <div class="find">
     <input type="search" id="addr" placeholder="輸入地址或地名，例如 台北市信義區" enterkeyhint="search">
     <button class="primary" id="locate" title="使用目前位置">定位</button>
-    <button id="theme" title="切換配色：跟隨系統 / 深色 / 淺色">跟隨系統</button>
+    <button id="theme" title="切換深色 / 淺色">深色</button>
   </div>
   <details class="filterbox" id="filterbox" open>
     <summary><span class="sum-label">篩選</span><span class="sum-now" id="sumNow"></span></summary>
@@ -419,45 +419,16 @@
 
   const $ = id => document.getElementById(id);
 
-  // 配色：跟隨系統 / 深色 / 淺色，選擇記在瀏覽器裡
-  const THEMES = [["system", "跟隨系統"], ["dark", "深色"], ["light", "淺色"]];
-
+  // 配色：只有深色/淺色兩種，按鈕上寫的是「按下去會變成什麼」
   function applyTheme(mode) {
-    if (mode === "system") delete document.documentElement.dataset.theme;
-    else document.documentElement.dataset.theme = mode;
-    $("theme").textContent = (THEMES.find(t => t[0] === mode) || THEMES[0])[1];
+    document.documentElement.dataset.theme = mode;
+    $("theme").textContent = mode === "dark" ? "淺色" : "深色";
     try { localStorage.setItem("theme", mode); } catch (e) { /* 無痕模式就算了 */ }
   }
 
   $("theme").onclick = () => {
-    const i = THEMES.findIndex(t => t[1] === $("theme").textContent);
-    applyTheme(THEMES[(i + 1) % THEMES.length][0]);
+    applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
   };
-
-  function buildFilters() {
-    const box = $("filters");
-    for (const f of FILTERS) {
-      const row = document.createElement("div");
-      row.className = "row";
-      row.innerHTML = `<span class="tag">${f.tag}</span><div class="chips"></div>`;
-      const chips = row.querySelector(".chips");
-      for (const [label, value] of f.opts) {
-        const b = document.createElement("button");
-        b.className = "chip";
-        b.type = "button";
-        b.textContent = label;
-        b.setAttribute("aria-pressed", picked[f.key] === value);
-        b.onclick = () => {
-          picked[f.key] = value;
-          for (const sib of chips.children) sib.setAttribute("aria-pressed", "false");
-          b.setAttribute("aria-pressed", "true");
-          render();
-        };
-        chips.appendChild(b);
-      }
-      box.appendChild(row);
-    }
-  }
 
   async function load() {
     let page = 1, all = [], total = 1;
@@ -645,7 +616,10 @@
     }
   });
 
-  applyTheme((() => { try { return localStorage.getItem("theme") || "system"; } catch (e) { return "system"; } })());
+  applyTheme((() => {
+    try { if (localStorage.getItem("theme")) return localStorage.getItem("theme"); } catch (e) { /* 忽略 */ }
+    return matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  })());
   buildFilters();
 
   // 桌機一律攤開（收合鈕在桌機是隱藏的，關著會整條不見）；切到手機寬度才收起來
