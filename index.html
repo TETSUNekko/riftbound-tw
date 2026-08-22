@@ -430,6 +430,31 @@
     applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
   };
 
+  function buildFilters() {
+    const box = $("filters");
+    for (const f of FILTERS) {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `<span class="tag">${f.tag}</span><div class="chips"></div>`;
+      const chips = row.querySelector(".chips");
+      for (const [label, value] of f.opts) {
+        const b = document.createElement("button");
+        b.className = "chip";
+        b.type = "button";
+        b.textContent = label;
+        b.setAttribute("aria-pressed", picked[f.key] === value);
+        b.onclick = () => {
+          picked[f.key] = value;
+          for (const sib of chips.children) sib.setAttribute("aria-pressed", "false");
+          b.setAttribute("aria-pressed", "true");
+          render();
+        };
+        chips.appendChild(b);
+      }
+      box.appendChild(row);
+    }
+  }
+
   async function load() {
     let page = 1, all = [], total = 1;
     while (all.length < total) {
