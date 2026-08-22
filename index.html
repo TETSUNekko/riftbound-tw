@@ -104,7 +104,10 @@
     white-space: nowrap;
   }
 
-  .find { display: flex; gap: 6px; flex: 1 1 260px; max-width: 380px; }
+  .find { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 420px; max-width: 620px; }
+
+  #kw { flex: 1 1 170px; }
+  #addr { flex: 1 1 190px; }
 
   input[type="search"] {
     flex: 1;
@@ -376,6 +379,7 @@
     <span class="count" id="count">載入中…</span>
   </div>
   <div class="find">
+    <input type="search" id="kw" placeholder="搜尋店名或活動，例如 松江貓腳印" enterkeyhint="search">
     <input type="search" id="addr" placeholder="輸入地址或地名，例如 台北市信義區" enterkeyhint="search">
     <button class="primary" id="locate" title="使用目前位置">定位</button>
     <button id="theme" title="切換深色 / 淺色">深色</button>
@@ -504,6 +508,7 @@
     const d = midnight(iso);
     if (!d) return null;
     const today = new Date(); today.setHours(0, 0, 0, 0);
+    const kw = $("kw").value.trim();
     return Math.round((d - today) / 86400000);
   }
 
@@ -527,6 +532,16 @@
   }
 
   // summary 上顯示目前選了什麼（預設值不列）
+  // 關鍵字比對：先照原字串找，找不到再退成「每個字都出現過」，
+  // 這樣「松江貓腳印」也能對到「貓腳印松江店」
+  function hitKeyword(e, q) {
+    const hay = (e.name + " " + e.shopName + " " + e.address).toLowerCase();
+    const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!tokens.length) return true;
+    if (tokens.every(t => hay.includes(t))) return true;
+    return tokens.every(t => [...t].every(ch => hay.includes(ch)));
+  }
+
   function activeLabels() {
     const out = [];
     for (const f of FILTERS) {
@@ -540,7 +555,9 @@
 
   function render() {
     const today = new Date(); today.setHours(0, 0, 0, 0);
+    const kw = $("kw").value.trim();
     const rows = events.filter(e => {
+      if (kw && !hitKeyword(e, kw)) return false;
       if (picked.status && e.activityStatus !== picked.status) return false;
       if (picked.type && e.activityType !== picked.type) return false;
       if (picked.fee !== null && Number(e.applyAmount) > picked.fee) return false;
@@ -645,6 +662,7 @@
     try { if (localStorage.getItem("theme")) return localStorage.getItem("theme"); } catch (e) { /* 忽略 */ }
     return matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
   })());
+  $("kw").addEventListener("input", render);
   buildFilters();
 
   // 桌機一律攤開（收合鈕在桌機是隱藏的，關著會整條不見）；切到手機寬度才收起來
